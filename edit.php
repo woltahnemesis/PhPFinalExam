@@ -1,3 +1,5 @@
+<?php session_start(); ?>
+
 <?php include 'includes/header.php' ?>
 
 <?php 
@@ -16,11 +18,12 @@ $cmd->execute();
 
 while($row = $cmd->fetch(PDO::FETCH_ASSOC)){
     
-    $des_Id = $value['destinationId'];
-    $des_name = $value['name'];
-    $des_location = $value['location'];
-    $des_desc = $value['description'];
-    $des_photo = $value['photo'];
+    $des_Id = $row['destinationId'];
+    $des_name = $row['name'];
+    $des_location = $row['location'];
+    $des_desc = $row['description'];
+    $des_photo = $row['photo'];
+    $region_id = $row['regionId'];
 
 ?>
 
@@ -39,14 +42,39 @@ while($row = $cmd->fetch(PDO::FETCH_ASSOC)){
     
     <div class="form-group">
         <label for="description">Description</label>
-        <textarea name="description" rows="10" cols="50" class="form-control"></textarea>
+        <textarea name="description" rows="10" cols="50" class="form-control"><?php echo $des_desc; ?></textarea>
     </div>
     
     <div class="form-group">
         <label for="photo">Photo</label>
-        <input type="file" name="description" class="form-control">
+        <input type="file" name="photo" class="form-control">
+        <?php 
+        if($des_photo){
+            echo "<img src='img/$des_photo' width='150px' >";
+        }
+        ?>
+
     </div>
-    
+
+    <div class="form-group">
+        <select name="region">
+            <?php 
+                    
+            $sql = 'SELECT * FROM regions';
+            $cmd = $db->prepare($sql);
+            $cmd->execute();
+
+            //Using while loop to loop all region name in navigation bar
+            while($row = $cmd->fetch(PDO::FETCH_ASSOC)){
+                $regionId = $row['regionId'];
+                $regionName = $row['name'];
+                    
+            ?>
+            <option value="<?php echo $regionId; ?>"><?php echo $regionName;?></option>
+            <?php } ?>
+        </select>
+    </div>
+        
     <div class="form-group">
         <input type="submit" name="submit" value="Submit" class="btn btn-outline-dark">
     </div>
@@ -70,7 +98,7 @@ while($row = $cmd->fetch(PDO::FETCH_ASSOC)){
         $size = $file['size'];
         $tmp_name = $file['tmp_name'];
         $type = mime_content_type($tmp_name);
-
+        
         echo "<div>";
         echo "Name: $name<br />";
         echo "Size: $size<br />";
@@ -79,7 +107,6 @@ while($row = $cmd->fetch(PDO::FETCH_ASSOC)){
         echo "</div>";
 
         if ($size < 1024000 && $type == 'image/jpeg') {
-            session_start();
             $name = session_id() . '-' . $name;
 
             move_uploaded_file($tmp_name, "img/$name");
@@ -87,6 +114,9 @@ while($row = $cmd->fetch(PDO::FETCH_ASSOC)){
             echo "Invalid file!";
             exit();
         }
+        
+        $sql = 'UPDATE destinatiions SET ';
+        $sql .= '';
     }
 ?>
 
